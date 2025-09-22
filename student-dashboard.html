@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Student Get Pass</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <div class="nav-header">
+                <h2>Student Dashboard</h2>
+            </div>
+            <div class="nav-user">
+                <span id="studentName">Student Name</span>
+                <button onclick="handleLogout()" class="btn-logout">Logout</button>
+            </div>
+        </nav>
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1>Welcome to Your Dashboard</h1>
+            </div>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Total Passes</h3>
+                    <p id="totalPasses">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Passes</h3>
+                    <p id="activePasses">0</p>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <button class="btn" onclick="toggleRequestPassForm()">Request New Pass</button>
+            </div>
+            
+            <!-- Gate Pass Request Form -->
+            <div id="gatePassForm" class="gate-pass-form" style="display: none;">
+                <div class="form-header">
+                    <h2>GATE PASS FOR STUDENT</h2>
+                </div>
+                <form onsubmit="return submitGatePass(event)">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="rollNo">Roll No:</label>
+                            <input type="text" id="rollNo" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="class">Class:</label>
+                            <input type="text" id="class" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="div">Div:</label>
+                            <input type="text" id="div" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="contactNo">Contact No (parent):</label>
+                            <input type="tel" id="contactNo" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="date">Date:</label>
+                            <input type="date" id="date" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field full-width">
+                            <label for="reason">Reason:</label>
+                            <textarea id="reason" required></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="timeOut">Time out:</label>
+                            <input type="time" id="timeOut" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-submit">Submit Request</button>
+                        <button type="button" class="btn btn-cancel" onclick="toggleRequestPassForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="passes-list">
+                <h2>Your Passes</h2>
+                <div id="passesList" class="passes-grid">
+                    <!-- Passes will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
