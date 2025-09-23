@@ -27,18 +27,27 @@
                     <p id="totalStudents">0</p>
                 </div>
                 <div class="stat-card">
-                    <h3>Pending Passes</h3>
-                    <p id="pendingPasses">0</p>
+                    <h3>Total Faculty</h3>
+                    <p id="totalFaculty">0</p>
                 </div>
                 <div class="stat-card">
-                    <h3>Approved Passes</h3>
-                    <p id="approvedPasses">0</p>
+                    <h3>Student Passes</h3>
+                    <p id="studentPasses">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Faculty Passes</h3>
+                    <p id="facultyPasses">0</p>
                 </div>
             </div>
             <div class="admin-sections">
                 <div class="section">
-                    <h2>Pending Pass Requests</h2>
+                    <h2>Pass Requests</h2>
                     <div class="filter-controls">
+                        <select id="userTypeFilter" onchange="filterPassesByType(this.value)">
+                            <option value="all">All Requests</option>
+                            <option value="student">Student Passes</option>
+                            <option value="faculty">Faculty Passes</option>
+                        </select>
                         <select id="passFilter" onchange="filterPasses(this.value)">
                             <option value="pending">Pending Requests</option>
                             <option value="approved">Approved Passes</option>
@@ -46,30 +55,7 @@
                         </select>
                     </div>
                     <div id="pendingPassList" class="passes-grid">
-                        <!-- Gate pass template -->
-                        <div class="pass-request-card">
-                            <div class="pass-header">
-                                <span class="status-badge status-pending">Pending</span>
-                                <span class="pass-date">21-09-2025</span>
-                            </div>
-                            <div class="pass-details">
-                                <h3>Gate Pass Request</h3>
-                                <div class="student-info">
-                                    <p><strong>Student:</strong> John Doe</p>
-                                    <p><strong>Roll No:</strong> A123</p>
-                                    <p><strong>Class:</strong> X <strong>Div:</strong> A</p>
-                                    <p><strong>Contact:</strong> +1234567890</p>
-                                </div>
-                                <div class="request-info">
-                                    <p><strong>Reason:</strong> Medical Appointment</p>
-                                    <p><strong>Time Out:</strong> 14:30</p>
-                                </div>
-                            </div>
-                            <div class="pass-actions">
-                                <button class="btn btn-approve" onclick="handlePassAction('approve', '123')">Approve</button>
-                                <button class="btn btn-reject" onclick="handlePassAction('reject', '123')">Reject</button>
-                            </div>
-                        </div>
+                        <!-- Pass requests will be dynamically added here -->
                     </div>
                 </div>
                 <div class="section">

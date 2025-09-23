@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - Student Get Pass</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <div class="nav-header">
+                <h2>Faculty Dashboard</h2>
+            </div>
+            <div class="nav-user">
+                <span id="facultyName">Faculty Name</span>
+                <button onclick="handleLogout()" class="btn-logout">Logout</button>
+            </div>
+        </nav>
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1>Welcome to Your Dashboard</h1>
+            </div>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Total Passes</h3>
+                    <p id="totalPasses">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Passes</h3>
+                    <p id="activePasses">0</p>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <button class="btn" onclick="toggleRequestPassForm()">Request New Pass</button>
+            </div>
+            
+            <!-- Gate Pass Request Form -->
+            <div id="gatePassForm" class="gate-pass-form faculty-pass-form" style="display: none;">
+                <div class="form-header">
+                    <h2>Gate Pass Form</h2>
+                </div>
+                <form onsubmit="return submitFacultyPass(event)">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="timeOut">Time</label>
+                            <div class="time-input-group">
+                                <input type="time" id="timeOut" required>
+                                <select id="timeFormat">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="duration">Expected Duration</label>
+                            <input type="text" id="duration" placeholder="ex: 30 minutes" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="facultyFirstName">First Name</label>
+                            <input type="text" id="facultyFirstName" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="facultyLastName">Last Name</label>
+                            <input type="text" id="facultyLastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="facultyEmail">Faculty Email</label>
+                            <input type="email" id="facultyEmail" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="department">Department</label>
+                            <select id="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Civil">Civil</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="reason">Reason for Leave</label>
+                            <textarea id="reason" required></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="(000) 000-0000" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-submit">Submit Request</button>
+                        <button type="button" class="btn btn-cancel" onclick="toggleRequestPassForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="passes-list">
+                <h2>Your Passes</h2>
+                <div id="passesList" class="passes-grid">
+                    <!-- Passes will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
