@@ -1,6 +1,5 @@
 <?php
 require_once 'config.php';
-session_start();
 
 header('Content-Type: application/json');
 
@@ -14,6 +13,10 @@ $user_type = $_SESSION['user_type'];
 $query = "";
 $params = [];
 $param_types = "";
+
+// Get filter parameters
+$status = isset($_GET['status']) ? $_GET['status'] : 'all';
+$type = isset($_GET['type']) ? $_GET['type'] : 'all';
 
 if ($user_type == 'student') {
     $query = "SELECT * FROM gate_passes WHERE pass_type = 'student' AND user_id = ? ORDER BY requested_at DESC";

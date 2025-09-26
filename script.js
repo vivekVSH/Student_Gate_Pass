@@ -15,13 +15,7 @@ function checkAuth() {
         const userType = data.userType;
 
         if (!currentPage.includes(`${userType}-dashboard.html`)) {
-            if (userType === 'student') {
-                window.location.href = '/Student_Get_Pass/student-dashboard.html';
-            } else if (userType === 'admin') {
-                window.location.href = '/Student_Get_Pass/admin-dashboard.html';
-            } else if (userType === 'faculty') {
-                window.location.href = '/Student_Get_Pass/faculty-dashboard.html';
-            }
+            window.location.href = `/Student_Get_Pass/${userType}-dashboard.html`;
         }
     })
     .catch(error => {
@@ -30,100 +24,33 @@ function checkAuth() {
     });
 }
 
-// Update Passes List
-function updatePassesList() {
-    fetch('get-passes.php')
-    .then(response => response.json())
-    .then(passes => {
-        displayPasses(passes);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while fetching gate passes');
-    });
-}
-
-// Handle Student Registration
-function handleStudentRegistration(event) {
+// Handle Student Login
+function handleStudentLogin(event) {
     event.preventDefault();
     
-    const fullName = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    if (password !== confirmPassword) {
-        alert('Passwords do not match');
-        return;
-    }
 
     const formData = new FormData();
-    formData.append('fullName', fullName);
-    formData.append('email', email);
     formData.append('studentId', studentId);
     formData.append('password', password);
 
-    fetch('student-register.php', {
+    fetch('/Student_Get_Pass/student-login.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'
     })
     .then(response => response.text())
     .then(result => {
-        if (result === 'success') {
-            alert('Registration successful! Please login with your credentials');
-            window.location.href = 'student-login.html';
+        if (result.includes('success')) {
+            window.location.href = '/Student_Get_Pass/student-dashboard.html';
         } else {
             alert(result);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred during registration');
-    });
-}
-
-// Handle Faculty Registration
-function handleFacultyRegistration(event) {
-    event.preventDefault();
-    
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = document.getElementById('email').value;
-    const department = document.getElementById('department').value;
-    const phone = document.getElementById('phone').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    if (password !== confirmPassword) {
-        alert('Passwords do not match');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('firstName', firstName);
-    formData.append('lastName', lastName);
-    formData.append('email', email);
-    formData.append('department', department);
-    formData.append('phone', phone);
-    formData.append('password', password);
-
-    fetch('/Student_Get_Pass/faculty-register.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(result => {
-        if (result === 'success') {
-            alert('Registration successful! Please login with your credentials');
-            window.location.href = 'faculty-login.html';
-        } else {
-            alert(result);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred during registration');
+        alert('An error occurred during login');
     });
 }
 
@@ -160,41 +87,6 @@ function handleFacultyLogin(event) {
             } else {
                 alert(result);
             }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        if (errorDiv) {
-            errorDiv.textContent = 'An error occurred during login';
-            errorDiv.style.display = 'block';
-        } else {
-            alert('An error occurred during login');
-        }
-    });
-}
-
-// Handle Student Login
-function handleStudentLogin(event) {
-    event.preventDefault();
-    
-    const studentId = document.getElementById('studentId').value;
-    const password = document.getElementById('password').value;
-
-    const formData = new FormData();
-    formData.append('studentId', studentId);
-    formData.append('password', password);
-
-    fetch('/Student_Get_Pass/student-login.php', {
-        method: 'POST',
-        body: formData,
-        credentials: 'same-origin'
-    })
-    .then(response => response.text())
-    .then(result => {
-        if (result.includes('success')) {
-            window.location.href = '/Student_Get_Pass/student-dashboard.html';
-        } else {
-            alert(result);
         }
     })
     .catch(error => {
@@ -236,17 +128,11 @@ function handleAdminLogin(event) {
             } else {
                 alert(result);
             }
-            document.getElementById('password').value = '';
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        if (errorDiv) {
-            errorDiv.textContent = 'An error occurred during login';
-            errorDiv.style.display = 'block';
-        } else {
-            alert('An error occurred during login');
-        }
+        alert('An error occurred during login');
     });
 }
 
@@ -271,15 +157,16 @@ function handleStudentRegistration(event) {
     formData.append('studentId', studentId);
     formData.append('password', password);
 
-    fetch('student-register.php', {
+    fetch('/Student_Get_Pass/student-register.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'
     })
     .then(response => response.text())
     .then(result => {
-        if (result === 'success') {
+        if (result.includes('success')) {
             alert('Registration successful! Please login with your credentials');
-            window.location.href = 'student-login.html';
+            window.location.href = '/Student_Get_Pass/student-login.html';
         } else {
             alert(result);
         }
@@ -290,112 +177,63 @@ function handleStudentRegistration(event) {
     });
 }
 
-// Handle Logout
-function handleLogout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-}
-
-// Initialize Dashboard Data
-function initializeDashboard() {
-    const userType = localStorage.getItem('userType');
-    const passes = JSON.parse(localStorage.getItem('passes') || '[]');
-    
-    if (userType === 'student') {
-        const studentId = localStorage.getItem('studentId');
-        const studentName = localStorage.getItem('studentName');
-        document.getElementById('studentName').textContent = studentName;
-        
-        // Get student's passes
-        const studentPasses = passes.filter(p => p.type === 'student' && p.studentId === studentId);
-        const activePasses = studentPasses.filter(p => p.status === 'approved');
-        
-        // Update statistics
-        document.getElementById('totalPasses').textContent = studentPasses.length;
-        document.getElementById('activePasses').textContent = activePasses.length;
-        
-        // Update passes list
-        updatePassesList();
-    } else if (userType === 'faculty') {
-        const facultyId = localStorage.getItem('facultyId');
-        const facultyName = localStorage.getItem('facultyName');
-        document.getElementById('facultyName').textContent = facultyName;
-        
-        // Get faculty's passes
-        const facultyPasses = passes.filter(p => p.type === 'faculty' && p.facultyId === facultyId);
-        const activePasses = facultyPasses.filter(p => p.status === 'approved');
-        
-        // Update statistics
-        document.getElementById('totalPasses').textContent = facultyPasses.length;
-        document.getElementById('activePasses').textContent = activePasses.length;
-        
-        // Update passes list
-        updatePassesList();
-    } else if (userType === 'admin') {
-        const adminName = localStorage.getItem('adminName');
-        document.getElementById('adminName').textContent = adminName;
-        
-        // Calculate statistics
-        const studentPasses = passes.filter(p => p.type === 'student');
-        const facultyPasses = passes.filter(p => p.type === 'faculty');
-        const pendingPasses = passes.filter(p => p.status === 'pending');
-        const approvedPasses = passes.filter(p => p.status === 'approved');
-        
-        // Get total users
-        const students = JSON.parse(localStorage.getItem('students') || '[]');
-        const faculty = JSON.parse(localStorage.getItem('faculty') || '[]');
-        
-        // Update statistics
-        document.getElementById('totalStudents').textContent = students.length;
-        document.getElementById('totalFaculty').textContent = faculty.length;
-        document.getElementById('totalPasses').textContent = passes.length;
-        document.getElementById('studentPasses').textContent = studentPasses.length;
-        document.getElementById('facultyPasses').textContent = facultyPasses.length;
-        document.getElementById('pendingPasses').textContent = pendingPasses.length;
-        document.getElementById('approvedPasses').textContent = approvedPasses.length;
-        
-        // Update passes list
-        updatePassesList();
-    }
-}
-
-// Toggle Gate Pass Request Form
-function toggleRequestPassForm() {
-    const form = document.getElementById('gatePassForm');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
-// Submit Faculty Gate Pass Request
-function submitFacultyPass(event) {
+// Handle Faculty Registration
+function handleFacultyRegistration(event) {
     event.preventDefault();
     
-    const formData = new FormData();
-    formData.append('type', 'faculty');
-    formData.append('phone', document.getElementById('phone').value);
-    formData.append('date', document.getElementById('date').value);
-    formData.append('timeOut', document.getElementById('timeOut').value);
-    formData.append('timeFormat', document.getElementById('timeFormat').value);
-    formData.append('duration', document.getElementById('duration').value);
-    formData.append('reason', document.getElementById('reason').value);
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    const department = document.getElementById('department').value;
+    const phone = document.getElementById('phone').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
 
-    fetch('submit-pass.php', {
+    if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('firstName', firstName);
+    formData.append('lastName', lastName);
+    formData.append('email', email);
+    formData.append('department', department);
+    formData.append('phone', phone);
+    formData.append('password', password);
+
+    fetch('/Student_Get_Pass/faculty-register.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'
     })
     .then(response => response.text())
     .then(result => {
-        if (result === 'success') {
-            alert('Gate pass request submitted successfully!');
-            updatePassesList();
-            toggleRequestPassForm();
-            event.target.reset();
+        if (result.includes('success')) {
+            alert('Registration successful! Please login with your credentials');
+            window.location.href = '/Student_Get_Pass/faculty-login.html';
         } else {
             alert(result);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while submitting the gate pass request');
+        alert('An error occurred during registration');
+    });
+}
+
+// Update Passes List
+function updatePassesList() {
+    fetch('/Student_Get_Pass/get-passes.php', {
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(passes => {
+        displayPasses(passes);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching gate passes');
     });
 }
 
@@ -410,16 +248,51 @@ function submitGatePass(event) {
     formData.append('div', document.getElementById('div').value);
     formData.append('contactNo', document.getElementById('contactNo').value);
     formData.append('date', document.getElementById('date').value);
-    formData.append('reason', document.getElementById('reason').value);
     formData.append('timeOut', document.getElementById('timeOut').value);
+    formData.append('reason', document.getElementById('reason').value);
 
-    fetch('submit-pass.php', {
+    fetch('/Student_Get_Pass/submit-pass.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'
     })
     .then(response => response.text())
     .then(result => {
-        if (result === 'success') {
+        if (result.includes('success')) {
+            alert('Gate pass request submitted successfully!');
+            updatePassesList();
+            event.target.reset();
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the gate pass request');
+    });
+}
+
+// Submit Faculty Gate Pass Request
+function submitFacultyPass(event) {
+    event.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('type', 'faculty');
+    formData.append('date', document.getElementById('date').value);
+    formData.append('timeOut', document.getElementById('timeOut').value);
+    formData.append('timeFormat', document.getElementById('timeFormat').value);
+    formData.append('duration', document.getElementById('duration').value);
+    formData.append('phone', document.getElementById('phone')?.value || '');
+    formData.append('reason', document.getElementById('reason').value);
+
+    fetch('/Student_Get_Pass/submit-pass.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result.includes('success')) {
             alert('Gate pass request submitted successfully!');
             updatePassesList();
             toggleRequestPassForm();
@@ -436,18 +309,26 @@ function submitGatePass(event) {
 
 // Handle Pass Actions (Approve/Reject)
 function handlePassAction(action, passId) {
+    if (!confirm(`Are you sure you want to ${action} this pass request?`)) {
+        return;
+    }
+
     const formData = new FormData();
     formData.append('passId', passId);
     formData.append('status', action === 'approve' ? 'approved' : 'rejected');
 
-    fetch('update-pass-status.php', {
+    fetch('/Student_Get_Pass/update-pass-status.php', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'
     })
     .then(response => response.text())
     .then(result => {
-        if (result === 'success') {
+        if (result.includes('success')) {
+            alert(`Pass ${action}d successfully!`);
+            // Update both the list and stats
             updatePassesList();
+            updateDashboardStats();
         } else {
             alert(result);
         }
@@ -458,114 +339,154 @@ function handlePassAction(action, passId) {
     });
 }
 
-// Filter Passes
-function filterPasses(status, type = 'all') {
-    const passes = JSON.parse(localStorage.getItem('passes') || '[]');
-    let filteredPasses = passes;
-
-    // Filter by type if specified
-    if (type !== 'all') {
-        filteredPasses = filteredPasses.filter(p => p.type === type);
-    }
-
-    // Filter by status if specified
-    if (status !== 'all') {
-        filteredPasses = filteredPasses.filter(p => p.status === status);
-    }
-
-    displayPasses(filteredPasses);
-}
-
 // Display Passes
 function displayPasses(passes) {
-    const userType = localStorage.getItem('userType');
-    const container = userType === 'admin' ? 
-        document.getElementById('pendingPassList') : 
-        document.getElementById('passesList');
-    
+    const container = document.getElementById('passesList') || document.getElementById('pendingPassList');
     if (!container) return;
 
-    container.innerHTML = passes.map(pass => {
-        if (pass.type === 'faculty') {
-            return `
-                <div class="pass-request-card">
-                    <div class="pass-header">
-                        <span class="badge badge-${pass.type}">${pass.type}</span>
-                        <span class="status-badge status-${pass.status}">${pass.status}</span>
-                        <span class="pass-date">${pass.date}</span>
+    if (!Array.isArray(passes)) {
+        container.innerHTML = '<div class="alert alert-danger">Error loading passes</div>';
+        return;
+    }
+
+    if (passes.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No gate passes found</div>';
+        return;
+    }
+
+    container.innerHTML = passes.map(pass => `
+        <div class="pass-request-card ${pass.status || 'pending'}">
+            <div class="pass-header">
+                <span class="badge badge-${pass.pass_type}">${pass.pass_type.charAt(0).toUpperCase() + pass.pass_type.slice(1)}</span>
+                <span class="status-badge status-${pass.status || 'pending'}">${(pass.status || 'pending').toUpperCase()}</span>
+                <span class="pass-date">Date: ${new Date(pass.date).toLocaleDateString()}</span>
+            </div>
+            <div class="pass-details">
+                <p><strong>Name:</strong> ${pass.name}</p>
+                ${pass.pass_type === 'student' ? `
+                    <p><strong>Class:</strong> ${pass.class}</p>
+                    <p><strong>Division:</strong> ${pass.division}</p>
+                    <p><strong>Roll No:</strong> ${pass.roll_no}</p>
+                ` : `
+                    <p><strong>Department:</strong> ${pass.department}</p>
+                    <p><strong>Duration:</strong> ${pass.duration || 'Not specified'}</p>
+                `}
+                <p><strong>Contact:</strong> ${pass.contact_no}</p>
+                <p><strong>Time Out:</strong> ${pass.time_out} ${pass.time_format || ''}</p>
+                <p><strong>Reason:</strong> ${pass.reason}</p>
+                ${pass.status ? `
+                    <div class="status-message ${pass.status}">
+                        ${pass.status === 'approved' ? 
+                            '<p class="success-message">✓ Your request has been approved. You may leave the campus.</p>' :
+                            pass.status === 'rejected' ? 
+                            '<p class="error-message">✗ Your request has been rejected.</p>' : ''
+                        }
                     </div>
-                    <div class="pass-details">
-                        <div class="faculty-info">
-                            <p><strong>Name:</strong> ${pass.facultyName}</p>
-                            <p><strong>Department:</strong> ${pass.department}</p>
-                            <p><strong>Phone:</strong> ${pass.phone}</p>
-                        </div>
-                        <div class="request-info">
-                            <p><strong>Reason:</strong> ${pass.reason}</p>
-                            <p><strong>Time Out:</strong> ${pass.timeOut} ${pass.timeFormat}</p>
-                            <p><strong>Duration:</strong> ${pass.duration}</p>
-                        </div>
-                    </div>
-                    ${userType === 'admin' && pass.status === 'pending' ? `
-                        <div class="pass-actions">
-                            <button class="btn btn-approve" onclick="handlePassAction('approve', '${pass.id}')">Approve</button>
-                            <button class="btn btn-reject" onclick="handlePassAction('reject', '${pass.id}')">Reject</button>
-                        </div>
-                    ` : ''}
+                ` : ''}
+            </div>
+            ${window.location.pathname.includes('admin-dashboard') && (!pass.status || pass.status === 'pending') ? `
+                <div class="pass-actions">
+                    <button onclick="handlePassAction('approve', '${pass.id}')" class="btn btn-success">Approve</button>
+                    <button onclick="handlePassAction('reject', '${pass.id}')" class="btn btn-danger">Reject</button>
                 </div>
-            `;
-        } else {
-            return `
-                <div class="pass-request-card">
-                    <div class="pass-header">
-                        <span class="badge badge-${pass.type}">${pass.type}</span>
-                        <span class="status-badge status-${pass.status}">${pass.status}</span>
-                        <span class="pass-date">${pass.date}</span>
-                    </div>
-                    <div class="pass-details">
-                        <div class="student-info">
-                            <p><strong>Name:</strong> ${pass.studentName}</p>
-                            <p><strong>Roll No:</strong> ${pass.rollNo}</p>
-                            <p><strong>Class:</strong> ${pass.class} <strong>Div:</strong> ${pass.div}</p>
-                            <p><strong>Contact:</strong> ${pass.contactNo}</p>
-                        </div>
-                        <div class="request-info">
-                            <p><strong>Reason:</strong> ${pass.reason}</p>
-                            <p><strong>Time Out:</strong> ${pass.timeOut}</p>
-                        </div>
-                    </div>
-                    ${userType === 'admin' && pass.status === 'pending' ? `
-                        <div class="pass-actions">
-                            <button class="btn btn-approve" onclick="handlePassAction('approve', '${pass.id}')">Approve</button>
-                            <button class="btn btn-reject" onclick="handlePassAction('reject', '${pass.id}')">Reject</button>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-    }).join('');
+            ` : ''}
+        </div>
+    `).join('');
 }
 
-// Update Passes List
-function updatePassesList() {
-    const passes = JSON.parse(localStorage.getItem('passes') || '[]');
-    const userType = localStorage.getItem('userType');
-    
-    if (userType === 'student') {
-        const studentId = localStorage.getItem('studentId');
-        const studentPasses = passes.filter(p => p.type === 'student' && p.studentId === studentId);
-        displayPasses(studentPasses);
-    } else if (userType === 'faculty') {
-        const facultyId = localStorage.getItem('facultyId');
-        const facultyPasses = passes.filter(p => p.type === 'faculty' && p.facultyId === facultyId);
-        displayPasses(facultyPasses);
-    } else if (userType === 'admin') {
-        displayPasses(passes.filter(p => p.status === 'pending'));
+// Toggle Request Pass Form
+function toggleRequestPassForm() {
+    const form = document.getElementById('gatePassForm');
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
     }
 }
 
-// Check if we're on a dashboard page and initialize if needed
-if (window.location.pathname.includes('dashboard')) {
+// Handle Logout
+function handleLogout() {
+    fetch('/Student_Get_Pass/logout.php', {
+        method: 'POST',
+        credentials: 'same-origin'
+    })
+    .then(() => {
+        window.location.href = '/Student_Get_Pass/index.html';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during logout');
+    });
+}
+
+// Update Dashboard Stats
+function updateDashboardStats() {
+    fetch('/Student_Get_Pass/get-dashboard-stats.php', {
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(stats => {
+        // Update admin dashboard stats
+        if (window.location.pathname.includes('admin-dashboard')) {
+            document.getElementById('totalStudents').textContent = stats.totalStudents;
+            document.getElementById('totalFaculty').textContent = stats.totalFaculty;
+            document.getElementById('studentPasses').textContent = stats.studentPasses;
+            document.getElementById('facultyPasses').textContent = stats.facultyPasses;
+            document.getElementById('totalPasses').textContent = stats.totalPasses;
+            document.getElementById('pendingPasses').textContent = stats.pendingPasses;
+        }
+        // Update student/faculty dashboard stats
+        else {
+            const totalPassesElement = document.getElementById('totalPasses');
+            const activePassesElement = document.getElementById('activePasses');
+            
+            if (totalPassesElement) {
+                if (window.location.pathname.includes('student-dashboard')) {
+                    totalPassesElement.textContent = stats.studentPasses;
+                } else if (window.location.pathname.includes('faculty-dashboard')) {
+                    totalPassesElement.textContent = stats.facultyPasses;
+                }
+            }
+            if (activePassesElement) {
+                activePassesElement.textContent = stats.activePasses;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching dashboard stats:', error);
+    });
+}
+
+// Filter Passes by Type
+function filterPassesByType(type) {
+    fetch(`/Student_Get_Pass/get-passes.php?type=${type}`, {
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(passes => {
+        displayPasses(passes);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while filtering passes');
+    });
+}
+
+// Initialize Dashboard Data
+function initializeDashboard() {
     checkAuth();
+    updateDashboardStats();
+    updatePassesList();
+
+    // Set up auto-refresh for admin dashboard
+    if (window.location.pathname.includes('admin-dashboard')) {
+        setInterval(() => {
+            updateDashboardStats();
+            updatePassesList();
+        }, 30000); // Refresh every 30 seconds
+    }
+}
+
+// Call initializeDashboard when the page loads
+if (document.body.classList.contains('dashboard') || 
+    window.location.pathname.includes('dashboard.html')) {
     initializeDashboard();
 }
