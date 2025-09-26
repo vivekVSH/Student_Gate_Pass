@@ -1,59 +1,86 @@
 // Check if user is logged in
 function checkAuth() {
-    const userType = localStorage.getItem('userType');
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    fetch('/Student_Get_Pass/check-auth.php', {
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.isLoggedIn) {
+            window.location.href = '/Student_Get_Pass/index.html';
+            return;
+        }
+
+        // Redirect if user is on wrong dashboard
+        const currentPage = window.location.pathname;
+        const userType = data.userType;
+
+        if (!currentPage.includes(`${userType}-dashboard.html`)) {
+            if (userType === 'student') {
+                window.location.href = '/Student_Get_Pass/student-dashboard.html';
+            } else if (userType === 'admin') {
+                window.location.href = '/Student_Get_Pass/admin-dashboard.html';
+            } else if (userType === 'faculty') {
+                window.location.href = '/Student_Get_Pass/faculty-dashboard.html';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Auth check failed:', error);
+        window.location.href = '/Student_Get_Pass/index.html';
+    });
+}
+
+// Update Passes List
+function updatePassesList() {
+    fetch('get-passes.php')
+    .then(response => response.json())
+    .then(passes => {
+        displayPasses(passes);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching gate passes');
+    });
+}
+
+// Handle Student Registration
+function handleStudentRegistration(event) {
+    event.preventDefault();
     
-    if (!isLoggedIn) {
-        window.location.href = 'index.html';
+    const fullName = document.getElementById('fullName').value;
+    const email = document.getElementById('email').value;
+    const studentId = document.getElementById('studentId').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        alert('Passwords do not match');
         return;
     }
 
-    // Redirect if user is on wrong dashboard
-    const currentPage = window.location.pathname;
-    if (userType === 'student' && currentPage.includes('admin-dashboard.html')) {
-        window.location.href = 'student-dashboard.html';
-    } else if (userType === 'admin' && currentPage.includes('student-dashboard.html')) {
-        window.location.href = 'admin-dashboard.html';
-    }
-}
+    const formData = new FormData();
+    formData.append('fullName', fullName);
+    formData.append('email', email);
+    formData.append('studentId', studentId);
+    formData.append('password', password);
 
-// Handle Faculty Login
-function handleFacultyLogin(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorDiv = document.getElementById('loginError');
-
-    // Clear previous errors
-    if (errorDiv) {
-        errorDiv.style.display = 'none';
-    }
-
-    // Demo faculty login (in real app, would verify against server)
-    if (email && password) {
-        const faculty = JSON.parse(localStorage.getItem('faculty') || '[]')
-            .find(f => f.email === email && f.password === password);
-
-        if (faculty) {
-            localStorage.setItem('userType', 'faculty');
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('facultyId', faculty.id);
-            localStorage.setItem('facultyName', `${faculty.firstName} ${faculty.lastName}`);
-            localStorage.setItem('facultyDepartment', faculty.department);
-            window.location.href = 'faculty-dashboard.html';
+    fetch('student-register.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'success') {
+            alert('Registration successful! Please login with your credentials');
+            window.location.href = 'student-login.html';
         } else {
-            if (errorDiv) {
-                errorDiv.textContent = 'Invalid credentials';
-                errorDiv.style.display = 'block';
-            }
+            alert(result);
         }
-    } else {
-        if (errorDiv) {
-            errorDiv.textContent = 'Please fill in all fields';
-            errorDiv.style.display = 'block';
-        }
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during registration');
+    });
 }
 
 // Handle Faculty Registration
@@ -73,24 +100,77 @@ function handleFacultyRegistration(event) {
         return;
     }
 
-    // Create faculty object
-    const faculty = {
-        id: Date.now().toString(),
-        firstName,
-        lastName,
-        email,
-        department,
-        phone,
-        password
-    };
+    const formData = new FormData();
+    formData.append('firstName', firstName);
+    formData.append('lastName', lastName);
+    formData.append('email', email);
+    formData.append('department', department);
+    formData.append('phone', phone);
+    formData.append('password', password);
 
-    // Store faculty data
-    let facultyList = JSON.parse(localStorage.getItem('faculty') || '[]');
-    facultyList.push(faculty);
-    localStorage.setItem('faculty', JSON.stringify(facultyList));
+    fetch('/Student_Get_Pass/faculty-register.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'success') {
+            alert('Registration successful! Please login with your credentials');
+            window.location.href = 'faculty-login.html';
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during registration');
+    });
+}
 
-    alert('Registration successful! Please login with your credentials');
-    window.location.href = 'faculty-login.html';
+// Handle Faculty Login
+function handleFacultyLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('loginError');
+
+    // Clear previous errors
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+
+    fetch('/Student_Get_Pass/faculty-login.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result.includes('success')) {
+            window.location.href = '/Student_Get_Pass/faculty-dashboard.html';
+        } else {
+            if (errorDiv) {
+                errorDiv.textContent = result;
+                errorDiv.style.display = 'block';
+            } else {
+                alert(result);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (errorDiv) {
+            errorDiv.textContent = 'An error occurred during login';
+            errorDiv.style.display = 'block';
+        } else {
+            alert('An error occurred during login');
+        }
+    });
 }
 
 // Handle Student Login
@@ -100,17 +180,27 @@ function handleStudentLogin(event) {
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
 
-    // Here you would typically make an API call to verify credentials
-    // For demo purposes, we'll use a simple check
-    if (studentId && password) {
-        localStorage.setItem('userType', 'student');
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('studentId', studentId);
-        localStorage.setItem('studentName', 'Demo Student'); // This would come from API
-        window.location.href = 'student-dashboard.html';
-    } else {
-        alert('Please fill in all fields');
-    }
+    const formData = new FormData();
+    formData.append('studentId', studentId);
+    formData.append('password', password);
+
+    fetch('/Student_Get_Pass/student-login.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result.includes('success')) {
+            window.location.href = '/Student_Get_Pass/student-dashboard.html';
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during login');
+    });
 }
 
 // Handle Admin Login
@@ -126,27 +216,38 @@ function handleAdminLogin(event) {
         errorDiv.style.display = 'none';
     }
 
-    // Admin credentials check
-    if (username === 'admin' && password === 'admin123') {
-        // Store admin session
-        localStorage.setItem('userType', 'admin');
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('adminName', 'Admin User');
-        
-        // Redirect to admin dashboard
-        window.location.href = 'admin-dashboard.html';
-    } else {
-        // Show error message
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    fetch('/Student_Get_Pass/admin-login.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result.includes('success')) {
+            window.location.href = '/Student_Get_Pass/admin-dashboard.html';
+        } else {
+            if (errorDiv) {
+                errorDiv.textContent = result;
+                errorDiv.style.display = 'block';
+            } else {
+                alert(result);
+            }
+            document.getElementById('password').value = '';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
         if (errorDiv) {
-            errorDiv.textContent = 'Invalid username or password. Admin credentials are username: "admin" and password: "admin123"';
+            errorDiv.textContent = 'An error occurred during login';
             errorDiv.style.display = 'block';
         } else {
-            alert('Invalid username or password. Admin credentials are username: "admin" and password: "admin123"');
+            alert('An error occurred during login');
         }
-        
-        // Clear password field
-        document.getElementById('password').value = '';
-    }
+    });
 }
 
 // Handle Student Registration
@@ -164,10 +265,29 @@ function handleStudentRegistration(event) {
         return;
     }
 
-    // Here you would typically make an API call to register the student
-    // For demo purposes, we'll just show a success message
-    alert('Registration successful! Please login with your credentials');
-    window.location.href = 'student-login.html';
+    const formData = new FormData();
+    formData.append('fullName', fullName);
+    formData.append('email', email);
+    formData.append('studentId', studentId);
+    formData.append('password', password);
+
+    fetch('student-register.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'success') {
+            alert('Registration successful! Please login with your credentials');
+            window.location.href = 'student-login.html';
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during registration');
+    });
 }
 
 // Handle Logout
@@ -249,100 +369,93 @@ function toggleRequestPassForm() {
 function submitFacultyPass(event) {
     event.preventDefault();
     
-    const facultyId = localStorage.getItem('facultyId');
-    const facultyName = localStorage.getItem('facultyName');
-    const facultyDepartment = localStorage.getItem('facultyDepartment');
-    
-    if (!facultyId) {
-        alert('Please login again');
-        window.location.href = 'faculty-login.html';
-        return;
-    }
-    
-    const pass = {
-        id: Date.now(),
-        type: 'faculty',
-        facultyId: facultyId,
-        facultyName: facultyName,
-        department: facultyDepartment,
-        phone: document.getElementById('phone').value,
-        date: document.getElementById('date').value,
-        timeOut: document.getElementById('timeOut').value,
-        timeFormat: document.getElementById('timeFormat').value,
-        duration: document.getElementById('duration').value,
-        reason: document.getElementById('reason').value,
-        status: 'pending',
-        requestedAt: new Date().toISOString()
-    };
+    const formData = new FormData();
+    formData.append('type', 'faculty');
+    formData.append('phone', document.getElementById('phone').value);
+    formData.append('date', document.getElementById('date').value);
+    formData.append('timeOut', document.getElementById('timeOut').value);
+    formData.append('timeFormat', document.getElementById('timeFormat').value);
+    formData.append('duration', document.getElementById('duration').value);
+    formData.append('reason', document.getElementById('reason').value);
 
-    // Store the pass request
-    let passes = JSON.parse(localStorage.getItem('passes') || '[]');
-    passes.push(pass);
-    localStorage.setItem('passes', JSON.stringify(passes));
-
-    // Update the display
-    updatePassesList();
-    toggleRequestPassForm();
-    
-    // Reset form
-    event.target.reset();
-    
-    // Show success message
-    alert('Gate pass request submitted successfully!');
+    fetch('submit-pass.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'success') {
+            alert('Gate pass request submitted successfully!');
+            updatePassesList();
+            toggleRequestPassForm();
+            event.target.reset();
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the gate pass request');
+    });
 }
 
 // Submit Student Gate Pass Request
 function submitGatePass(event) {
     event.preventDefault();
     
-    const studentId = localStorage.getItem('studentId');
-    const studentName = localStorage.getItem('studentName');
-    
-    if (!studentId) {
-        alert('Please login again');
-        window.location.href = 'student-login.html';
-        return;
-    }
-    
-    const pass = {
-        id: Date.now(),
-        type: 'student',
-        studentId: studentId,
-        studentName: studentName,
-        rollNo: document.getElementById('rollNo').value,
-        class: document.getElementById('class').value,
-        div: document.getElementById('div').value,
-        contactNo: document.getElementById('contactNo').value,
-        date: document.getElementById('date').value,
-        reason: document.getElementById('reason').value,
-        timeOut: document.getElementById('timeOut').value,
-        status: 'pending',
-        requestedAt: new Date().toISOString()
-    };
+    const formData = new FormData();
+    formData.append('type', 'student');
+    formData.append('rollNo', document.getElementById('rollNo').value);
+    formData.append('class', document.getElementById('class').value);
+    formData.append('div', document.getElementById('div').value);
+    formData.append('contactNo', document.getElementById('contactNo').value);
+    formData.append('date', document.getElementById('date').value);
+    formData.append('reason', document.getElementById('reason').value);
+    formData.append('timeOut', document.getElementById('timeOut').value);
 
-    // Store the pass request in localStorage (in a real app, this would be sent to a server)
-    let passes = JSON.parse(localStorage.getItem('passes') || '[]');
-    passes.push({...pass, id: Date.now()});
-    localStorage.setItem('passes', JSON.stringify(passes));
-
-    // Update the display
-    updatePassesList();
-    toggleRequestPassForm();
-    
-    // Reset form
-    event.target.reset();
+    fetch('submit-pass.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'success') {
+            alert('Gate pass request submitted successfully!');
+            updatePassesList();
+            toggleRequestPassForm();
+            event.target.reset();
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the gate pass request');
+    });
 }
 
 // Handle Pass Actions (Approve/Reject)
 function handlePassAction(action, passId) {
-    let passes = JSON.parse(localStorage.getItem('passes') || '[]');
-    const passIndex = passes.findIndex(p => p.id === parseInt(passId));
-    
-    if (passIndex !== -1) {
-        passes[passIndex].status = action === 'approve' ? 'approved' : 'rejected';
-        localStorage.setItem('passes', JSON.stringify(passes));
-        updatePassesList();
-    }
+    const formData = new FormData();
+    formData.append('passId', passId);
+    formData.append('status', action === 'approve' ? 'approved' : 'rejected');
+
+    fetch('update-pass-status.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'success') {
+            updatePassesList();
+        } else {
+            alert(result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the pass status');
+    });
 }
 
 // Filter Passes
