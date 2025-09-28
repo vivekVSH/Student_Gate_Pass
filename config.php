@@ -1,7 +1,16 @@
 <?php
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Disable error display for JSON responses
+if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 
 $servername = "localhost";
 $username = "root";

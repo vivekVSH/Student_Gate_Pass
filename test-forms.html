@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test - Student Get Pass</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Test Student Registration</h1>
+            <form id="testStudentForm" onsubmit="return testStudentRegistration(event)">
+                <div class="form-group">
+                    <label for="testFullName">Full Name</label>
+                    <input type="text" id="testFullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="testEmail">Email</label>
+                    <input type="email" id="testEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="testStudentId">Student ID</label>
+                    <input type="text" id="testStudentId" name="studentId" required>
+                </div>
+                <div class="form-group">
+                    <label for="testClass">Class</label>
+                    <input type="text" id="testClass" name="class" required>
+                </div>
+                <div class="form-group">
+                    <label for="testDivision">Division</label>
+                    <input type="text" id="testDivision" name="division" required>
+                </div>
+                <div class="form-group">
+                    <label for="testRollNo">Roll Number</label>
+                    <input type="text" id="testRollNo" name="rollNo" required>
+                </div>
+                <div class="form-group">
+                    <label for="testPassword">Password</label>
+                    <input type="password" id="testPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="testConfirmPassword">Confirm Password</label>
+                    <input type="password" id="testConfirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn">Test Registration</button>
+            </form>
+            <div id="testResult" style="margin-top: 20px; padding: 10px; border-radius: 5px;"></div>
+        </div>
+    </div>
+    <script>
+        function testStudentRegistration(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('fullName', document.getElementById('testFullName').value);
+            formData.append('email', document.getElementById('testEmail').value);
+            formData.append('studentId', document.getElementById('testStudentId').value);
+            formData.append('class', document.getElementById('testClass').value);
+            formData.append('division', document.getElementById('testDivision').value);
+            formData.append('rollNo', document.getElementById('testRollNo').value);
+            formData.append('password', document.getElementById('testPassword').value);
+
+            fetch('/Student_Get_Pass/student-register.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.text())
+            .then(result => {
+                const resultDiv = document.getElementById('testResult');
+                if (result.includes('success')) {
+                    resultDiv.innerHTML = '<p style="color: green;">✅ Registration successful!</p>';
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red;">❌ Error: ' + result + '</p>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('testResult').innerHTML = '<p style="color: red;">❌ Error: ' + error + '</p>';
+            });
+        }
+    </script>
+</body>
+</html>

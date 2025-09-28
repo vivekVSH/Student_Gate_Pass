@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Student Get Pass</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="dashboard-container">
@@ -38,21 +40,35 @@
                     <h3>Faculty Passes</h3>
                     <p id="facultyPasses">0</p>
                 </div>
+                <div class="stat-card">
+                    <h3>Total Passes</h3>
+                    <p id="totalPasses">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Passes</h3>
+                    <p id="pendingPasses">0</p>
+                </div>
             </div>
             <div class="admin-sections">
                 <div class="section">
-                    <h2>Pass Requests</h2>
-                    <div class="filter-controls">
-                        <select id="userTypeFilter" onchange="filterPassesByType(this.value)">
-                            <option value="all">All Requests</option>
-                            <option value="student">Student Passes</option>
-                            <option value="faculty">Faculty Passes</option>
-                        </select>
-                        <select id="passFilter" onchange="filterPasses(this.value)">
-                            <option value="pending">Pending Requests</option>
-                            <option value="approved">Approved Passes</option>
-                            <option value="rejected">Rejected Passes</option>
-                        </select>
+                    <div class="section-header">
+                        <h2>Pass Requests</h2>
+                        <div class="filter-controls">
+                            <div class="select-wrapper">
+                                <select id="userTypeFilter" onchange="filterPassesByType(this.value)" class="custom-select">
+                                    <option value="all">All Requests</option>
+                                    <option value="student">Student Passes</option>
+                                    <option value="faculty">Faculty Passes</option>
+                                </select>
+                            </div>
+                            <div class="select-wrapper">
+                                <select id="passFilter" onchange="filterPasses(this.value)" class="custom-select">
+                                    <option value="pending">Pending Requests</option>
+                                    <option value="approved">Approved Passes</option>
+                                    <option value="rejected">Rejected Passes</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div id="pendingPassList" class="passes-grid">
                         <!-- Pass requests will be dynamically added here -->
@@ -68,5 +84,6 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script src="admin-dashboard.js"></script>
 </body>
 </html>

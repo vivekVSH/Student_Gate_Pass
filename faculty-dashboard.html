@@ -44,13 +44,13 @@
                     <div class="form-row">
                         <div class="form-field">
                             <label for="date">Date</label>
-                            <input type="date" id="date" required>
+                            <input type="date" id="date" name="date" required>
                         </div>
                         <div class="form-field">
                             <label for="timeOut">Time</label>
                             <div class="time-input-group">
-                                <input type="time" id="timeOut" required>
-                                <select id="timeFormat">
+                                <input type="time" id="timeOut" name="timeOut" required>
+                                <select id="timeFormat" name="timeFormat">
                                     <option value="AM">AM</option>
                                     <option value="PM">PM</option>
                                 </select>
@@ -60,29 +60,29 @@
                     <div class="form-row">
                         <div class="form-field">
                             <label for="duration">Expected Duration</label>
-                            <input type="text" id="duration" placeholder="ex: 30 minutes" required>
+                            <input type="text" id="duration" name="duration" placeholder="ex: 30 minutes" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-field">
                             <label for="facultyFirstName">First Name</label>
-                            <input type="text" id="facultyFirstName" required>
+                            <input type="text" id="facultyFirstName" name="facultyFirstName" required>
                         </div>
                         <div class="form-field">
                             <label for="facultyLastName">Last Name</label>
-                            <input type="text" id="facultyLastName" required>
+                            <input type="text" id="facultyLastName" name="facultyLastName" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-field">
                             <label for="facultyEmail">Faculty Email</label>
-                            <input type="email" id="facultyEmail" required>
+                            <input type="email" id="facultyEmail" name="facultyEmail" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-field">
-                            <label for="department">Department</label>
-                            <select id="department" required>
+                            <label for="facultyDepartment">Department</label>
+                            <select id="facultyDepartment" name="facultyDepartment" required>
                                 <option value="">Select Department</option>
                                 <option value="Computer Science">Computer Science</option>
                                 <option value="Information Technology">Information Technology</option>
@@ -95,13 +95,13 @@
                     <div class="form-row">
                         <div class="form-field">
                             <label for="reason">Reason for Leave</label>
-                            <textarea id="reason" required></textarea>
+                            <textarea id="reason" name="reason" required></textarea>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-field">
                             <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="(000) 000-0000" required>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="(000) 000-0000" required>
                         </div>
                     </div>
                     <div class="form-actions">

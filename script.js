@@ -1,3 +1,10 @@
+// Initialize all functions before DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname.includes('admin-dashboard.html')) {
+        initializeDashboard();
+    }
+});
+
 // Check if user is logged in
 function checkAuth() {
     fetch('/Student_Get_Pass/check-auth.php', {
@@ -31,26 +38,40 @@ function handleStudentLogin(event) {
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
 
+    console.log('Login attempt:', { studentId, password: password ? 'SET' : 'EMPTY' });
+
+    if (!studentId || !password) {
+        alert('Please enter both Student ID and password');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('studentId', studentId);
     formData.append('password', password);
+
+    console.log('Sending login request...');
 
     fetch('/Student_Get_Pass/student-login.php', {
         method: 'POST',
         body: formData,
         credentials: 'same-origin'
     })
-    .then(response => response.text())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text();
+    })
     .then(result => {
+        console.log('Server response:', result);
         if (result.includes('success')) {
+            console.log('Login successful, redirecting...');
             window.location.href = '/Student_Get_Pass/student-dashboard.html';
         } else {
-            alert(result);
+            alert('Login failed: ' + result);
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred during login');
+        console.error('Login error:', error);
+        alert('An error occurred during login: ' + error.message);
     });
 }
 
@@ -103,36 +124,50 @@ function handleAdminLogin(event) {
     const password = document.getElementById('password').value;
     const errorDiv = document.getElementById('loginError');
 
+    console.log('Admin login attempt:', { username, password: password ? 'SET' : 'EMPTY' });
+
     // Clear previous error messages
     if (errorDiv) {
         errorDiv.style.display = 'none';
+    }
+
+    if (!username || !password) {
+        alert('Please enter both username and password');
+        return;
     }
 
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
 
+    console.log('Sending admin login request...');
+
     fetch('/Student_Get_Pass/admin-login.php', {
         method: 'POST',
         body: formData,
         credentials: 'same-origin'
     })
-    .then(response => response.text())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text();
+    })
     .then(result => {
+        console.log('Server response:', result);
         if (result.includes('success')) {
+            console.log('Admin login successful, redirecting...');
             window.location.href = '/Student_Get_Pass/admin-dashboard.html';
         } else {
             if (errorDiv) {
                 errorDiv.textContent = result;
                 errorDiv.style.display = 'block';
             } else {
-                alert(result);
+                alert('Login failed: ' + result);
             }
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred during login');
+        console.error('Login error:', error);
+        alert('An error occurred during login: ' + error.message);
     });
 }
 
@@ -140,14 +175,32 @@ function handleAdminLogin(event) {
 function handleStudentRegistration(event) {
     event.preventDefault();
     
-    const fullName = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
-    const studentId = document.getElementById('studentId').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    // Get form element
+    const form = event.target;
+    
+    // Get all form values
+    const fullName = form.fullName.value;
+    const email = form.email.value;
+    const studentId = form.studentId.value;
+    const classValue = form.class.value;
+    const division = form.division.value;
+    const rollNo = form.rollNo.value;
+    const password = form.password.value;
+    const confirmPassword = form.confirmPassword.value;
+
+    // Debug: Log all values
+    console.log('Form values:', {
+        fullName, email, studentId, classValue, division, rollNo, password, confirmPassword
+    });
 
     if (password !== confirmPassword) {
         alert('Passwords do not match');
+        return;
+    }
+
+    // Validate all fields are filled
+    if (!fullName || !email || !studentId || !classValue || !division || !rollNo || !password) {
+        alert('Please fill in all fields');
         return;
     }
 
@@ -155,7 +208,16 @@ function handleStudentRegistration(event) {
     formData.append('fullName', fullName);
     formData.append('email', email);
     formData.append('studentId', studentId);
+    formData.append('class', classValue);
+    formData.append('division', division);
+    formData.append('rollNo', rollNo);
     formData.append('password', password);
+
+    // Debug: Log form data
+    console.log('FormData contents:');
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
 
     fetch('/Student_Get_Pass/student-register.php', {
         method: 'POST',
@@ -164,16 +226,17 @@ function handleStudentRegistration(event) {
     })
     .then(response => response.text())
     .then(result => {
+        console.log('Server response:', result);
         if (result.includes('success')) {
             alert('Registration successful! Please login with your credentials');
             window.location.href = '/Student_Get_Pass/student-login.html';
         } else {
-            alert(result);
+            alert('Error: ' + result);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred during registration');
+        alert('An error occurred during registration: ' + error.message);
     });
 }
 
@@ -241,15 +304,37 @@ function updatePassesList() {
 function submitGatePass(event) {
     event.preventDefault();
     
+    // Get form element
+    const form = event.target;
+    
+    // Get all form values
+    const rollNo = form.rollNo.value;
+    const classValue = form.class.value;
+    const div = form.div.value;
+    const contactNo = form.contactNo.value;
+    const date = form.date.value;
+    const timeOut = form.timeOut.value;
+    const reason = form.reason.value;
+
+    console.log('Student pass data:', { rollNo, classValue, div, contactNo, date, timeOut, reason });
+
+    // Validate all fields are filled
+    if (!rollNo || !classValue || !div || !contactNo || !date || !timeOut || !reason) {
+        alert('Please fill in all fields');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('type', 'student');
-    formData.append('rollNo', document.getElementById('rollNo').value);
-    formData.append('class', document.getElementById('class').value);
-    formData.append('div', document.getElementById('div').value);
-    formData.append('contactNo', document.getElementById('contactNo').value);
-    formData.append('date', document.getElementById('date').value);
-    formData.append('timeOut', document.getElementById('timeOut').value);
-    formData.append('reason', document.getElementById('reason').value);
+    formData.append('rollNo', rollNo);
+    formData.append('class', classValue);
+    formData.append('div', div);
+    formData.append('contactNo', contactNo);
+    formData.append('date', date);
+    formData.append('timeOut', timeOut);
+    formData.append('reason', reason);
+
+    console.log('Sending student pass request...');
 
     fetch('/Student_Get_Pass/submit-pass.php', {
         method: 'POST',
@@ -258,17 +343,18 @@ function submitGatePass(event) {
     })
     .then(response => response.text())
     .then(result => {
+        console.log('Server response:', result);
         if (result.includes('success')) {
             alert('Gate pass request submitted successfully!');
             updatePassesList();
             event.target.reset();
         } else {
-            alert(result);
+            alert('Error: ' + result);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while submitting the gate pass request');
+        alert('An error occurred while submitting the gate pass request: ' + error.message);
     });
 }
 
@@ -276,14 +362,35 @@ function submitGatePass(event) {
 function submitFacultyPass(event) {
     event.preventDefault();
     
+    // Get form element
+    const form = event.target;
+    
+    // Get all form values
+    const date = form.date.value;
+    const timeOut = form.timeOut.value;
+    const timeFormat = form.timeFormat.value;
+    const duration = form.duration.value;
+    const phone = form.phone.value;
+    const reason = form.reason.value;
+
+    console.log('Faculty pass data:', { date, timeOut, timeFormat, duration, phone, reason });
+
+    // Validate all fields are filled
+    if (!date || !timeOut || !timeFormat || !duration || !phone || !reason) {
+        alert('Please fill in all fields');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('type', 'faculty');
-    formData.append('date', document.getElementById('date').value);
-    formData.append('timeOut', document.getElementById('timeOut').value);
-    formData.append('timeFormat', document.getElementById('timeFormat').value);
-    formData.append('duration', document.getElementById('duration').value);
-    formData.append('phone', document.getElementById('phone')?.value || '');
-    formData.append('reason', document.getElementById('reason').value);
+    formData.append('date', date);
+    formData.append('timeOut', timeOut);
+    formData.append('timeFormat', timeFormat);
+    formData.append('duration', duration);
+    formData.append('phone', phone);
+    formData.append('reason', reason);
+
+    console.log('Sending faculty pass request...');
 
     fetch('/Student_Get_Pass/submit-pass.php', {
         method: 'POST',
@@ -292,18 +399,19 @@ function submitFacultyPass(event) {
     })
     .then(response => response.text())
     .then(result => {
+        console.log('Server response:', result);
         if (result.includes('success')) {
             alert('Gate pass request submitted successfully!');
             updatePassesList();
             toggleRequestPassForm();
             event.target.reset();
         } else {
-            alert(result);
+            alert('Error: ' + result);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while submitting the gate pass request');
+        alert('An error occurred while submitting the gate pass request: ' + error.message);
     });
 }
 
@@ -362,18 +470,18 @@ function displayPasses(passes) {
                 <span class="pass-date">Date: ${new Date(pass.date).toLocaleDateString()}</span>
             </div>
             <div class="pass-details">
-                <p><strong>Name:</strong> ${pass.name}</p>
+                <p><strong>Name:</strong> ${pass.name || 'N/A'}</p>
                 ${pass.pass_type === 'student' ? `
-                    <p><strong>Class:</strong> ${pass.class}</p>
-                    <p><strong>Division:</strong> ${pass.division}</p>
-                    <p><strong>Roll No:</strong> ${pass.roll_no}</p>
+                    <p><strong>Class:</strong> ${pass.class || 'N/A'}</p>
+                    <p><strong>Division:</strong> ${pass.division || 'N/A'}</p>
+                    <p><strong>Roll No:</strong> ${pass.roll_no || 'N/A'}</p>
                 ` : `
-                    <p><strong>Department:</strong> ${pass.department}</p>
+                    <p><strong>Department:</strong> ${pass.class_or_department || 'N/A'}</p>
                     <p><strong>Duration:</strong> ${pass.duration || 'Not specified'}</p>
                 `}
-                <p><strong>Contact:</strong> ${pass.contact_no}</p>
-                <p><strong>Time Out:</strong> ${pass.time_out} ${pass.time_format || ''}</p>
-                <p><strong>Reason:</strong> ${pass.reason}</p>
+                <p><strong>Contact:</strong> ${pass.contact_no || 'N/A'}</p>
+                <p><strong>Time Out:</strong> ${pass.time_out || 'N/A'} ${pass.time_format || ''}</p>
+                <p><strong>Reason:</strong> ${pass.reason || 'N/A'}</p>
                 ${pass.status ? `
                     <div class="status-message ${pass.status}">
                         ${pass.status === 'approved' ? 
@@ -455,9 +563,14 @@ function updateDashboardStats() {
     });
 }
 
-// Filter Passes by Type
-function filterPassesByType(type) {
-    fetch(`/Student_Get_Pass/get-passes.php?type=${type}`, {
+// Fetch Passes with Filters
+function fetchPasses(status = 'pending', type = 'all') {
+    const queryParams = new URLSearchParams({
+        status: status,
+        type: type
+    });
+    
+    fetch(`/Student_Get_Pass/get-passes.php?${queryParams}`, {
         credentials: 'same-origin'
     })
     .then(response => response.json())
@@ -470,11 +583,24 @@ function filterPassesByType(type) {
     });
 }
 
+// Filter Passes by Status
+function filterPasses(status) {
+    const type = document.getElementById('userTypeFilter').value;
+    fetchPasses(status, type);
+}
+
+// Filter Passes by Type
+function filterPassesByType(type) {
+    const status = document.getElementById('passFilter').value;
+    fetchPasses(status, type);
+}
+
 // Initialize Dashboard Data
 function initializeDashboard() {
     checkAuth();
     updateDashboardStats();
     updatePassesList();
+    updateUserName();
 
     // Set up auto-refresh for admin dashboard
     if (window.location.pathname.includes('admin-dashboard')) {
@@ -483,6 +609,27 @@ function initializeDashboard() {
             updatePassesList();
         }, 30000); // Refresh every 30 seconds
     }
+}
+
+// Update User Name in Dashboard
+function updateUserName() {
+    fetch('/Student_Get_Pass/check-auth.php', {
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.isLoggedIn && data.userName) {
+            const nameElement = document.getElementById('studentName') || 
+                               document.getElementById('facultyName') || 
+                               document.getElementById('adminName');
+            if (nameElement) {
+                nameElement.textContent = data.userName;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching user name:', error);
+    });
 }
 
 // Call initializeDashboard when the page loads
